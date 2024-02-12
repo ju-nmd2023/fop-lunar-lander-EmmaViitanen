@@ -4,6 +4,11 @@ function setup() {
   noStroke();
 }
 
+let key = {
+  up: 24,
+  right: 26,
+  left: 27,
+};
 let rocketY = 100;
 let rocketX = 300;
 let velocity = 1;
@@ -86,6 +91,20 @@ function background() {
   pop();
 }
 
+function keyPressed() {
+  if (keyCode === UP_ARROW) {
+    velocity -= 0.2;
+  } else {
+    velocity;
+  }
+  // if (keyCode === RIGHT_ARROW) {
+  //   rocketX += 1;
+  // }
+  // if (keyCode === LEFT_ARROW) {
+  //   rocketX -= 1;
+  // }
+}
+
 function draw() {
   setup();
   background();
@@ -107,5 +126,11 @@ function draw() {
     clear();
 
     return result();
+
+    // if (mouseIsPressed) {
+    //   return setup();
+    //   background();
+    //   rocket(0, rocketY);
+    // }
   }
 }
