@@ -1,16 +1,25 @@
+fill(255);
+textSize(60);
+textStyle(BOLD);
+textFont("Courier New");
+text("RESULT", 200, 200);
+textStyle(ITALIC);
+textSize(20);
+text("Press To Try Again...", 190, 400);
+function setup() {
+  createCanvas(600, 800);
+  background(29, 41, 81);
+  noStroke();
+}
+
 let rocketY = 100;
-let rocketX = 0;
+let rocketX = 300;
 let velocity = 1;
 const acceleration = 0.2;
 let gameIsRunning = true;
 
-function setup() {
-  createCanvas(500, 800);
-  background(29, 41, 81);
-  noStroke();
-}
 // ------- Start page --------- //
-function startScreen() {
+function start() {
   push();
   fill(255);
   textSize(60);
@@ -24,7 +33,7 @@ function startScreen() {
 }
 
 // ---------- Result page -------- //
-function resultScreen() {
+function result() {
   push();
   fill(255);
   textSize(60);
@@ -37,7 +46,37 @@ function resultScreen() {
   pop();
 }
 
-function gameScreen() {
+// ----- // rocket
+// fill(255);
+// rect(100, 100, 30, 40);
+// triangle(115, 70, 130, 100, 100, 100);
+// fill(192);
+// triangle(130, 120, 140, 140, 130, 140);
+// triangle(100, 120, 90, 140, 100, 140);
+// fill(0);
+// ellipse(115, 110, 10);
+// ellipse(115, 130, 10);
+
+// // moon
+// fill(255);
+// beginShape();
+// vertex(-100, 800);
+// bezierVertex(50, 700, 550, 700, 700, 800);
+// endShape();
+
+// // Landing pad
+// fill(192);
+// rect(250, 700, 100, 30);
+// triangle(250, 700, 250, 730, 220, 730);
+// triangle(350, 700, 380, 730, 350, 730);
+// fill(0);
+// ellipse(300, 700, 100, 20);
+// stroke(255, 255, 0);
+// strokeWeight(2);
+// ellipse(300, 700, 80, 10);
+// noStroke();
+
+function background() {
   push();
   // moon
   fill(246, 241, 213);
@@ -69,10 +108,9 @@ function gameScreen() {
   pop();
 }
 
-// ----- // rocket
-function rocket(rocketX, rocketY) {
+function rocket(x, y) {
   push();
-  translate(rocketX, rocketY);
+  translate(x, y);
   fill(255);
   rect(285, 100, 30, 40);
   triangle(300, 70, 315, 100, 285, 100);
@@ -87,47 +125,21 @@ function rocket(rocketX, rocketY) {
 
 function draw() {
   setup();
-  gameScreen();
-  rocket(rocketX, rocketY);
+  background();
+  rocket(0, rocketY);
 
   if (gameIsRunning === true) {
     rocketY += velocity;
     velocity += acceleration;
 
-    if (keyIsPressed) {
-      if (keyCode === UP_ARROW) {
-        velocity -= 0.5;
-      } else if (keyCode === LEFT_ARROW) {
-        rocketX -= 1;
-      } else if (keyCode === RIGHT_ARROW) {
-        rocketX += 1;
-      }
+    if (keyCode === UP_ARROW) {
+      velocity -= 1;
     }
-
-    if (rocketY > 600) {
+    if (rocketY > 550 && rocketX >= 250 && rocketX <= 350) {
+      // if (rocketY > 610) {
+      //   gameIsRunning = false;
+      // }
       gameIsRunning = false;
-      console.log("Game Over");
     }
   }
 }
-
-// let state = "start";
-// function draw() {
-//   if (state === "start") {
-//     startScreen();
-//   } else if (gameIsRunning === true) {
-//     background();
-//   } else if (state === "result") {
-//     resultScreen();
-//   }
-// }
-// function mouseClicked() {
-//   if (state === "start") {
-//     state = "game";
-//   } else if (state === "game") {
-//     state = "result";
-//   } else if (state === "result") {
-//     state = "game";
-//     gameIsRunning = true;
-//   }
-// }
