@@ -1,11 +1,12 @@
-let rocketY = 100;
-let rocketX = 0;
+let rocketY = innerHeight / 2;
+let rocketX = innerWidth / 2;
 let velocity = 1;
 const acceleration = 0.2;
 let gameIsRunning = true;
+let resultText = "";
 
 function setup() {
-  createCanvas(500, 800);
+  createCanvas(600, 800);
   background(29, 41, 81);
   noStroke();
 }
@@ -16,10 +17,10 @@ function startScreen() {
   textSize(60);
   textStyle(BOLD);
   textFont("Courier New");
-  text("LUNAR LANDER", 100, 200);
+  text("LUNAR LANDER", 85, 200);
   textStyle(ITALIC);
   textSize(20);
-  text("Press to start...", 250, 400);
+  text("Press to start...", 200, 400);
   pop();
 }
 
@@ -73,29 +74,45 @@ function gameScreen() {
 function rocket(rocketX, rocketY) {
   push();
   translate(rocketX, rocketY);
+
   fill(255);
-  rect(285, 100, 30, 40);
-  triangle(300, 70, 315, 100, 285, 100);
+  rect(-40, 0, 30, 40);
+  triangle(-25, -30, -10, 0, -40, 0);
   fill(192);
-  triangle(315, 120, 325, 140, 315, 140);
-  triangle(285, 120, 275, 140, 285, 140);
+  triangle(-10, 20, -10, 40, 3, 40);
+  triangle(-40, 20, -40, 40, -53, 40);
   fill(0);
-  ellipse(300, 110, 10);
-  ellipse(300, 130, 10);
+  ellipse(-25, 10, 10);
+  ellipse(-25, 30, 10);
+
   pop();
 }
 
+// ______ STAR ______ //
+function star(x, y) {
+  push();
+  translate(x, y);
+  fill(255, 255, 0);
+  triangle(100, 90, 110, 115, 90, 115);
+  pop();
+}
+
+let state = "start";
+
 function draw() {
   setup();
-  gameScreen();
-  rocket(rocketX, rocketY);
 
-  if (gameIsRunning === true) {
+  if (state === "start") {
+    startScreen();
+  } else if (state === "game") {
+    gameScreen();
+    rocket(rocketX, rocketY);
+
     rocketY += velocity;
     velocity += acceleration;
 
     if (keyIsPressed) {
-      if (keyCode === UP_ARROW) {
+      if (keyCode === DOWN_ARROW) {
         velocity -= 0.5;
       } else if (keyCode === LEFT_ARROW) {
         rocketX -= 1;
@@ -104,30 +121,21 @@ function draw() {
       }
     }
 
-    if (rocketY > 600) {
-      gameIsRunning = false;
-      console.log("Game Over");
+    if (rocketY >= 650 || rocketY < 0) {
+      state = "result";
     }
+  } else if (state === "result") {
+    resultScreen();
   }
 }
 
-// let state = "start";
-// function draw() {
-//   if (state === "start") {
-//     startScreen();
-//   } else if (gameIsRunning === true) {
-//     background();
-//   } else if (state === "result") {
-//     resultScreen();
-//   }
-// }
-// function mouseClicked() {
-//   if (state === "start") {
-//     state = "game";
-//   } else if (state === "game") {
-//     state = "result";
-//   } else if (state === "result") {
-//     state = "game";
-//     gameIsRunning = true;
-//   }
-// }
+function mouseClicked() {
+  if (state === "start") {
+    state = "game";
+  } else if (state === "result") {
+    state = "game";
+    gameIsRunning = true;
+    rocketY = 100;
+    velocity = 1;
+  }
+}
