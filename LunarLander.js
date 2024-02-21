@@ -1,9 +1,13 @@
 let rocketY = innerHeight / 2;
 let rocketX = innerWidth / 2;
 let velocity = 1;
-const acceleration = 0.2;
-let gameIsRunning = true;
+let angle = 0;
 let resultText = "";
+let directionWay = 3;
+let state = "start";
+let gameIsRunning = true;
+const acceleration = 0.2;
+const rotationSpeed = 0.1;
 
 function setup() {
   createCanvas(600, 800);
@@ -13,33 +17,44 @@ function setup() {
 // ------- Start page --------- //
 function startScreen() {
   push();
+  textAlign(CENTER);
   fill(255);
   textSize(60);
   textStyle(BOLD);
   textFont("Courier New");
-  text("LUNAR LANDER", 85, 200);
-  textStyle(ITALIC);
+  text("LUNAR LANDER", width / 2, 200);
   textSize(20);
-  text("Press to start...", 200, 400);
+  textStyle(ITALIC);
+  text("Press to start...", width / 2, 400);
+  textStyle(NORMAL);
+  text("Land on the landing pad softly", width / 2, 300);
+  text("and try to avoid the stars", width / 2, 330);
+  text("⬅️ Left | ⬇️ Fly | ➡️ Right", width / 2, 500);
   pop();
 }
 
 // ---------- Result page -------- //
 function resultScreen() {
   push();
+  textAlign(CENTER);
   fill(255);
   textSize(60);
   textStyle(BOLD);
   textFont("Courier New");
-  text("RESULT", 200, 200);
+  text("RESULT", width / 2, 200);
   textStyle(ITALIC);
   textSize(20);
-  text("Press To Try Again...", 190, 400);
+  text(resultText, width / 2, 300);
+  text("Press To Try Again...", width / 2, 400);
   pop();
 }
 
 function gameScreen() {
   push();
+  fill(255);
+  textSize(20);
+  textFont("Courier New");
+  text("Speed: " + velocity.toFixed(2), 50, 50);
   // moon
   fill(246, 241, 213);
   beginShape();
@@ -67,13 +82,15 @@ function gameScreen() {
   strokeWeight(2);
   ellipse(300, 700, 80, 10);
   noStroke();
+
   pop();
 }
 
 // ----- // rocket
-function rocket(rocketX, rocketY) {
+function rocket(rocketX, rocketY, angle) {
   push();
   translate(rocketX, rocketY);
+  rotate(angle);
 
   fill(255);
   rect(-40, 0, 30, 40);
@@ -97,16 +114,13 @@ function star(x, y) {
   pop();
 }
 
-let state = "start";
-
 function draw() {
   setup();
-
   if (state === "start") {
     startScreen();
   } else if (state === "game") {
     gameScreen();
-    rocket(rocketX, rocketY);
+    rocket(rocketX, rocketY, angle);
 
     rocketY += velocity;
     velocity += acceleration;
@@ -114,15 +128,41 @@ function draw() {
     if (keyIsPressed) {
       if (keyCode === DOWN_ARROW) {
         velocity -= 0.5;
+        if (angle !== 0) {
+          let directionX = cos(angle);
+          let directionY = sin(angle);
+          rocketX += directionX * directionWay;
+          rocketY += directionY * directionWay;
+        }
       } else if (keyCode === LEFT_ARROW) {
-        rocketX -= 1;
+        angle -= rotationSpeed;
+        if (angle < -PI / 4) {
+          angle = -PI / 4;
+        }
       } else if (keyCode === RIGHT_ARROW) {
-        rocketX += 1;
+        angle += rotationSpeed;
+        if (angle > PI / 4) {
+          angle = PI / 4;
+        }
       }
     }
 
-    if (rocketY >= 650 || rocketY < 0) {
+    if (angle > PI / 4) {
+      rocketX = rocketX + directionWay;
+      rocketY = rocketY + directionWay;
+    }
+
+    if (
+      rocketY < 0 ||
+      rocketX < 0 ||
+      rocketX > width ||
+      (velocity > 3 && rocketY >= 650)
+    ) {
       state = "result";
+      resultText = "You crashed!";
+    } else if (rocketY >= 650 && rocketX > 250 && rocketX <= 350) {
+      state = "result";
+      resultText = "Congratulations! You landed on the moon!";
     }
   } else if (state === "result") {
     resultScreen();
@@ -136,6 +176,8 @@ function mouseClicked() {
     state = "game";
     gameIsRunning = true;
     rocketY = 100;
+    rocketX = width / 2;
     velocity = 1;
+    angle = 0;
   }
 }
