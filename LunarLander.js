@@ -1,12 +1,14 @@
-let rocketY = innerHeight / 2;
-let rocketX = innerWidth / 2;
+let rocketY = 100;
+let rocketX = 300;
+let starY = innerHeight / 2;
+let starX = innerHeight / 2;
 let velocityX = 0;
 let velocityY = 0;
 let angle = 0;
 let resultText = "";
 let state = "start";
 let gameIsRunning = true;
-let mass = 1;
+let rocketMass = 1;
 let thrust = 0;
 let gravity = 1.5;
 let upforce = 0;
@@ -23,12 +25,14 @@ function setup() {
       x: Math.floor(Math.random() * width), //Random x positiom
       y: Math.floor(Math.random() * height), //Random y position
       fall: 1, //Falling rate
-      acceleration: 0.2, //The stars acceleration
+      acceleration: 0.1, //The stars acceleration
     };
     stars.push(star);
   }
 }
 
+// ---------- Drawing the screens -------- //
+// Draws the screens depending on the state
 function draw() {
   clear();
   if (state === "start") {
@@ -39,7 +43,7 @@ function draw() {
     resultScreen();
   }
 }
-// ------- Start page --------- //
+// ---------- Start Screen -------- //
 function startScreen() {
   push();
   textAlign(CENTER);
@@ -58,7 +62,7 @@ function startScreen() {
   pop();
 }
 
-// ---------- Result page -------- //
+// ---------- Result Screen -------- //
 function resultScreen() {
   push();
   textAlign(CENTER);
@@ -74,14 +78,17 @@ function resultScreen() {
   pop();
 }
 
+// ---------- The Game Screen -------- //
 function gameScreen() {
   push();
   background(29, 41, 81);
   fill(255);
   textSize(20);
   textFont("Courier New");
+  // Displays the velocity with 2 decimals
   text("Speed: " + velocityY.toFixed(2), 50, 50);
-  //moon
+
+  // --- The Moon --- //
   fill(246, 241, 213);
   beginShape();
   vertex(-100, 800);
@@ -96,7 +103,7 @@ function gameScreen() {
   ellipse(260, 750, 100, 20);
   ellipse(450, 770, 100, 20);
 
-  // Landing pad
+  // ---- Landing pad ---- //
   fill(192);
   rect(250, 700, 100, 30);
   triangle(250, 700, 250, 730, 220, 730);
@@ -111,6 +118,7 @@ function gameScreen() {
 
   pop();
 
+  // Displaying the rocket
   rocket(rocketX, rocketY, angle);
 
   if (keyIsDown(DOWN_ARROW)) {
@@ -123,7 +131,7 @@ function gameScreen() {
   } else if (keyIsDown(RIGHT_ARROW)) {
     angle = angle + (Math.PI / 180) * 4;
   }
-  upforce = thrust * mass;
+  upforce = thrust * rocketMass;
   downforce = -gravity;
 
   velocityY = velocityY + upforce * Math.cos(angle) + 0.07 * downforce;
@@ -133,6 +141,9 @@ function gameScreen() {
   rocketX += velocityX;
 
   if (
+    /** If you land anywhere else than the landing pad
+     * or go outside the frame
+     * or have a too high velocity you crash **/
     rocketY < 0 ||
     rocketX < 0 ||
     rocketX > width ||
@@ -141,6 +152,7 @@ function gameScreen() {
     state = "result";
     resultText = "You crashed!";
   } else if (rocketY >= 650 && rocketX > 250 && rocketX <= 350) {
+    // If you land on the landing pad with the right amount of velocity.
     state = "result";
     resultText = "Congratulations! You landed on the moon!";
   }
@@ -148,6 +160,7 @@ function gameScreen() {
   // The following 12 lines of code was inspired by https://pixelkind.github.io/foundationsofprogramming//programming/15-07-example Accessed: 2024-02-22
   for (let star of stars) {
     fallingStar(star.x, star.y);
+    // The stars y position increases by the fall rate and acceleration
     star.y += star.fall;
     star.fall += star.acceleration;
 
@@ -155,12 +168,12 @@ function gameScreen() {
       star.y = 0;
       star.x = Math.random() * width;
       star.fall = 1;
-      star.acceleration = 0.2;
+      star.acceleration = 0.1;
     }
   }
 }
 
-// ----- // rocket
+// The rocket
 function rocket(rocketX, rocketY, angle) {
   push();
   translate(rocketX, rocketY);
@@ -178,6 +191,8 @@ function rocket(rocketX, rocketY, angle) {
 
   pop();
 }
+
+// Shooting Stars
 function fallingStar(starX, starY) {
   push();
   translate(starX, starY);
@@ -191,13 +206,14 @@ function fallingStar(starX, starY) {
   pop();
 }
 
+// Switching between different screens
 function mouseClicked() {
   if (state === "start") {
     state = "game";
   } else if (state === "result") {
     gameIsRunning = true;
-    rocketY = innerHeight / 2;
-    rocketX = innerWidth / 2;
+    rocketY = 100;
+    rocketX = 300;
     angle = 0;
     velocityY = 0;
     velocityX = 0;
