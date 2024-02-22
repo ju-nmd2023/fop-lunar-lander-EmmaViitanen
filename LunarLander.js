@@ -1,18 +1,34 @@
 let rocketY = innerHeight / 2;
 let rocketX = innerWidth / 2;
-let velocity = 1;
+let velocityX = 0;
+let velocityY = 0;
 let angle = 0;
 let resultText = "";
-let directionWay = 3;
 let state = "start";
 let gameIsRunning = true;
+let mass = 1;
 const acceleration = 0.2;
 const rotationSpeed = 0.1;
+let thrust = 0;
+let gravity = 1.5;
+let upforce = 0;
+let downforce = 0;
 
 function setup() {
   createCanvas(600, 800);
-  background(29, 41, 81);
+  frameRate(30);
   noStroke();
+}
+
+function draw() {
+  clear();
+  if (state === "start") {
+    startScreen();
+  } else if (state === "game") {
+    gameScreen();
+  } else if (state === "result") {
+    resultScreen();
+  }
 }
 // ------- Start page --------- //
 function startScreen() {
@@ -51,11 +67,12 @@ function resultScreen() {
 
 function gameScreen() {
   push();
+  background(29, 41, 81);
   fill(255);
   textSize(20);
   textFont("Courier New");
-  text("Speed: " + velocity.toFixed(2), 50, 50);
-  // moon
+  text("Speed: " + velocityY.toFixed(2), 50, 50);
+  //moon
   fill(246, 241, 213);
   beginShape();
   vertex(-100, 800);
@@ -84,6 +101,40 @@ function gameScreen() {
   noStroke();
 
   pop();
+
+  rocket(rocketX, rocketY, angle);
+
+  if (keyIsDown(DOWN_ARROW)) {
+    thrust = 0.5;
+  } else {
+    thrust = 0;
+  }
+  if (keyIsDown(LEFT_ARROW)) {
+    angle = angle - (Math.PI / 180) * 4;
+  } else if (keyIsDown(RIGHT_ARROW)) {
+    angle = angle + (Math.PI / 180) * 4;
+  }
+  upforce = thrust * mass;
+  downforce = -gravity;
+
+  velocityY = velocityY + upforce * Math.cos(angle) + 0.07 * downforce;
+  velocityX = velocityX + upforce * Math.sin(angle);
+
+  rocketY -= velocityY;
+  rocketX += velocityX;
+
+  if (
+    rocketY < 0 ||
+    rocketX < 0 ||
+    rocketX > width ||
+    (velocityY < -3 && rocketY >= 650)
+  ) {
+    state = "result";
+    resultText = "You crashed!";
+  } else if (rocketY >= 650 && rocketX > 250 && rocketX <= 350) {
+    state = "result";
+    resultText = "Congratulations! You landed on the moon!";
+  }
 }
 
 // ----- // rocket
@@ -104,80 +155,32 @@ function rocket(rocketX, rocketY, angle) {
 
   pop();
 }
-
-// ______ STAR ______ //
-function star(x, y) {
+function fallingStar(starX, starY) {
   push();
-  translate(x, y);
+  translate(starX, starY);
   fill(255, 255, 0);
-  triangle(100, 90, 110, 115, 90, 115);
+  ellipse(0, 0, 30);
+  stroke(255, 255, 0);
+  strokeWeight(4);
+  line(-15, -20, -15, -40);
+  line(0, -10, 0, -30);
+  line(15, -20, 15, -40);
   pop();
-}
-
-function draw() {
-  setup();
-  if (state === "start") {
-    startScreen();
-  } else if (state === "game") {
-    gameScreen();
-    rocket(rocketX, rocketY, angle);
-
-    rocketY += velocity;
-    velocity += acceleration;
-
-    if (keyIsPressed) {
-      if (keyCode === DOWN_ARROW) {
-        velocity -= 0.5;
-        if (angle !== 0) {
-          let directionX = cos(angle);
-          let directionY = sin(angle);
-          rocketX += directionX * directionWay;
-          rocketY += directionY * directionWay;
-        }
-      } else if (keyCode === LEFT_ARROW) {
-        angle -= rotationSpeed;
-        if (angle < -PI / 4) {
-          angle = -PI / 4;
-        }
-      } else if (keyCode === RIGHT_ARROW) {
-        angle += rotationSpeed;
-        if (angle > PI / 4) {
-          angle = PI / 4;
-        }
-      }
-    }
-
-    if (angle > PI / 4) {
-      rocketX = rocketX + directionWay;
-      rocketY = rocketY + directionWay;
-    }
-
-    if (
-      rocketY < 0 ||
-      rocketX < 0 ||
-      rocketX > width ||
-      (velocity > 3 && rocketY >= 650)
-    ) {
-      state = "result";
-      resultText = "You crashed!";
-    } else if (rocketY >= 650 && rocketX > 250 && rocketX <= 350) {
-      state = "result";
-      resultText = "Congratulations! You landed on the moon!";
-    }
-  } else if (state === "result") {
-    resultScreen();
-  }
 }
 
 function mouseClicked() {
   if (state === "start") {
     state = "game";
   } else if (state === "result") {
-    state = "game";
     gameIsRunning = true;
-    rocketY = 100;
-    rocketX = width / 2;
-    velocity = 1;
+    rocketY = innerHeight / 2;
+    rocketX = innerWidth / 2;
     angle = 0;
+    velocityY = 0;
+    velocityX = 0;
+    upforce = 0;
+    downforce = 0;
+    thrust = 0;
+    state = "game";
   }
 }
