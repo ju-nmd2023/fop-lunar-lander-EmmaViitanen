@@ -7,17 +7,26 @@ let resultText = "";
 let state = "start";
 let gameIsRunning = true;
 let mass = 1;
-const acceleration = 0.2;
-const rotationSpeed = 0.1;
 let thrust = 0;
 let gravity = 1.5;
 let upforce = 0;
 let downforce = 0;
+let stars = [];
 
 function setup() {
   createCanvas(600, 800);
   frameRate(30);
   noStroke();
+  // The following 9 lines of code was inspired by https://pixelkind.github.io/foundationsofprogramming//programming/15-07-example Accessed: 2024-02-22
+  for (let i = 0; i < 3; i++) {
+    const star = {
+      x: Math.floor(Math.random() * width), //Random x positiom
+      y: Math.floor(Math.random() * height), //Random y position
+      fall: 1, //Falling rate
+      acceleration: 0.2, //The stars acceleration
+    };
+    stars.push(star);
+  }
 }
 
 function draw() {
@@ -134,6 +143,20 @@ function gameScreen() {
   } else if (rocketY >= 650 && rocketX > 250 && rocketX <= 350) {
     state = "result";
     resultText = "Congratulations! You landed on the moon!";
+  }
+
+  // The following 12 lines of code was inspired by https://pixelkind.github.io/foundationsofprogramming//programming/15-07-example Accessed: 2024-02-22
+  for (let star of stars) {
+    fallingStar(star.x, star.y);
+    star.y += star.fall;
+    star.fall += star.acceleration;
+
+    if (star.y > height) {
+      star.y = 0;
+      star.x = Math.random() * width;
+      star.fall = 1;
+      star.acceleration = 0.2;
+    }
   }
 }
 
